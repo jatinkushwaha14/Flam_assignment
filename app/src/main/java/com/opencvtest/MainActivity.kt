@@ -50,10 +50,12 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        surfaceView = SurfaceView(this)
-        surfaceHolder = surfaceView.holder
-        surfaceHolder?.addCallback(this)
-        setContentView(surfaceView)
+        glSurfaceView = GLSurfaceView(this)
+        edgeRenderer = EdgeRenderer()
+        glSurfaceView.setEGLContextClientVersion(2)
+        glSurfaceView.setRenderer(edgeRenderer)
+        glSurfaceView.renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
+        setContentView(glSurfaceView)
 
         Log.d(TAG, "MainActivity created")
 
