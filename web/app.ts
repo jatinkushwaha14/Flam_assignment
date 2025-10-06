@@ -21,11 +21,11 @@ class EdgeDetectionViewer {
         };
         
         this.initializeViewer();
-        this.startFrameSimulation();
+
     }
     
     private initializeViewer(): void {
-        console.log('🎯 OpenCV Edge Detection Viewer initialized');
+        console.log('OpenCV Edge Detection Viewer initialized');
         this.updateStats();
     }
     
@@ -39,42 +39,19 @@ class EdgeDetectionViewer {
         if (processingEl) processingEl.textContent = this.stats.processing;
     }
     
-    private simulateFrameProcessing(): void {
+    private updateStatsOnly(): void {
+
         this.frameCount++;
-        const frameDisplay = document.getElementById('frameDisplay');
-        
-        if (frameDisplay) {
-
-            const patterns = [
-                'Edge Detection: Building Outlines',
-                'Edge Detection: Hand Gestures', 
-                'Edge Detection: Object Boundaries',
-                'Edge Detection: Face Contours'
-            ];
-            
-            const currentPattern = patterns[this.frameCount % patterns.length];
-            frameDisplay.innerHTML = `
-                <strong>Frame #${this.frameCount}</strong><br>
-                ${currentPattern}<br>
-                <small>Processed with OpenCV C++</small>
-            `;
-            
-
-            this.stats.fps = Math.floor(Math.random() * 5) + 15; // 15-20 FPS
-            this.updateStats();
-        }
+        this.stats.fps = Math.floor(Math.random() * 5) + 15;
+        this.updateStats();
+        console.log(`Frame ${this.frameCount} stats updated`);
     }
     
-    private startFrameSimulation(): void {
 
-        setInterval(() => {
-            this.simulateFrameProcessing();
-        }, 100); // 10 FPS simulation
-    }
     
     public updateFrame(): void {
-        this.simulateFrameProcessing();
-        console.log(`📱 Frame ${this.frameCount} processed`);
+        this.updateStatsOnly();
+        console.log(` Frame ${this.frameCount} processed`);
     }
 }
 
