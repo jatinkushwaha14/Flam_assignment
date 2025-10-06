@@ -17,6 +17,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
+import android.opengl.GLSurfaceView
+import com.opencvtest.gl.EdgeRenderer
+
 class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
 
     companion object {
