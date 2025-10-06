@@ -30,11 +30,11 @@ Real-time edge detection application using Android Camera2 API, OpenCV C++ proce
 ## Screenshots
 
 ### Real-time Edge Detection (Android)
-![Android Edge Detection](screenshots/webviewer.jpeg)
+![Android Edge Detection](screenshots/android.jpeg)
 *Real-time Canny edge detection running on Android with OpenGL rendering*
 
 ### Web Viewer Interface
-![Web Viewer](screenshots/frame.jpeg)
+![Web Viewer](screenshots/web.png)
 *TypeScript web viewer displaying static frame (can be integrated to realtime using websockets)*
 
 
