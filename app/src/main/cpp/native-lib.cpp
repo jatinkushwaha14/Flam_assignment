@@ -1,52 +1,80 @@
 #include <jni.h>
 #include <string>
 #include <android/log.h>
+#include <android/bitmap.h>
 #include <opencv2/opencv.hpp>
+#include <opencv2/imgproc.hpp>
 
-#define LOG_TAG "NativeLib"
+#define LOG_TAG "OpenCVProcessor"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_yourpackage_opencvedgedetection_MainActivity_stringFromJNI(
-        JNIEnv* env,
-        jobject /* this */) {
-
-    LOGI("Native method called successfully");
-
-    std::string hello = "Hello from C++ with OpenCV!";
+Java_com_opencvtest_MainActivity_stringFromJNI(JNIEnv* env, jobject /* this */) {
+    std::string hello = "OpenCV Edge Detection Ready!";
     return env->NewStringUTF(hello.c_str());
 }
 
-extern "C" JNIEXPORT jstring JNICALL
-Java_com_yourpackage_opencvedgedetection_MainActivity_testOpenCV(
+extern "C" JNIEXPORT jintArray JNICALL
+Java_com_opencvtest_MainActivity_processFrame(
         JNIEnv* env,
-        jobject /* this */) {
+        jobject /* this */,
+        jintArray pixels,
+        jint width,
+        jint height) {
 
-    LOGI("Testing OpenCV integration");
+    LOGI("Processing frame: %dx%d", width, height);
+
+    jint* pixelPtr = nullptr;  // Declare at function scope
 
     try {
-        // Create a test OpenCV Mat
-        cv::Mat test_image = cv::Mat::zeros(480, 640, CV_8UC3);
+        // Get pixel data from Java
+        pixelPtr = env->GetIntArrayElements(pixels, nullptr);
+        if (!pixelPtr) {
+            LOGE("Failed to get pixel array");
+            return nullptr;
+        }
 
-        // Draw a simple rectangle
-        cv::rectangle(test_image, cv::Point(100, 100), cv::Point(300, 200), cv::Scalar(0, 255, 0), 2);
+        // Create OpenCV Mat from pixel data (ARGB format)
+        cv::Mat inputMat(height, width, CV_8UC4, (unsigned char*)pixelPtr);
+
+        // Convert ARGB to RGB
+        cv::Mat rgbMat;
+        cv::cvtColor(inputMat, rgbMat, cv::COLOR_RGBA2RGB);
+
+        // Convert to grayscale
+        cv::Mat grayMat;
+        cv::cvtColor(rgbMat, grayMat, cv::COLOR_RGB2GRAY);
 
         // Apply Canny edge detection
-        cv::Mat gray, edges;
-        cv::cvtColor(test_image, gray, cv::COLOR_BGR2GRAY);
-        cv::Canny(gray, edges, 100, 200);
+        cv::Mat edgesMat;
+        cv::Canny(grayMat, edgesMat, 100, 200, 3);
 
-        std::string result = "OpenCV working! Created " +
-                             std::to_string(test_image.rows) + "x" +
-                             std::to_string(test_image.cols) + " image with Canny edges";
+        // Convert back to RGB (edges are white on black)
+        cv::Mat outputRgb;
+        cv::cvtColor(edgesMat, outputRgb, cv::COLOR_GRAY2RGB);
 
-        LOGI("OpenCV test successful: %s", result.c_str());
+        // Convert back to ARGB for Android
+        cv::Mat outputArgb;
+        cv::cvtColor(outputRgb, outputArgb, cv::COLOR_RGB2RGBA);
 
-        return env->NewStringUTF(result.c_str());
+        // Create output array
+        jintArray result = env->NewIntArray(width * height);
+        if (result) {
+            env->SetIntArrayRegion(result, 0, width * height, (jint*)outputArgb.data);
+        }
+
+        // Release input array
+        env->ReleaseIntArrayElements(pixels, pixelPtr, JNI_ABORT);
+
+        LOGI("Frame processed successfully");
+        return result;
 
     } catch (const std::exception& e) {
-        std::string error = "OpenCV Error: " + std::string(e.what());
-        LOGI("OpenCV test failed: %s", error.c_str());
-        return env->NewStringUTF(error.c_str());
+        LOGE("Processing error: %s", e.what());
+        if (pixelPtr) {
+            env->ReleaseIntArrayElements(pixels, pixelPtr, JNI_ABORT);
+        }
+        return nullptr;
     }
 }
