@@ -36,7 +36,9 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
         }
     }
 
-    private lateinit var surfaceView: SurfaceView
+    private lateinit var glSurfaceView: GLSurfaceView
+    private lateinit var edgeRenderer: EdgeRenderer
+
     private var surfaceHolder: SurfaceHolder? = null
     private var cameraDevice: CameraDevice? = null
     private var backgroundHandler: Handler? = null
