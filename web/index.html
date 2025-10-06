@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenCV Edge Detection Viewer</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background: #1a1a1a; 
+            color: white; 
+            padding: 20px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        .stats { 
+            background: #333; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 20px 0;
+        }
+        .frame-display { 
+            border: 2px solid #555; 
+            padding: 10px; 
+            text-align: center;
+            background: #222;
+            border-radius: 8px;
+        }
+        .sample-frame {
+            width: 100%;
+            max-width: 640px;
+            height: 400px;
+            background: #000;
+            border: 1px solid #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>OpenCV Edge Detection Viewer</h1>
+        <p>Real-time processed frames from Android + OpenCV + OpenGL pipeline</p>
+        
+        <div class="stats">
+            <h3>Processing Stats</h3>
+            <p><strong>Resolution:</strong> <span id="resolution">1280x720</span></p>
+            <p><strong>FPS:</strong> <span id="fps">15-20</span></p>
+            <p><strong>Processing:</strong> <span id="processing">Canny Edge Detection</span></p>
+            <p><strong>Rendering:</strong> <span id="rendering">OpenGL ES 2.0</span></p>
+        </div>
+
+        <div class="frame-display">
+            <h3>📱 Sample Processed Frame</h3>
+            <div class="sample-frame" id="frameDisplay">
+                White Edges on Black Background<br>
+                Real-time OpenCV Processing
+            </div>
+            <button onclick="updateFrame()">Simulate New Frame</button>
+        </div>
+
+        <div class="stats">
+            <h3>🏗️ Tech Stack</h3>
+            <ul>
+                <li><strong>Android:</strong> Camera2 API + TextureView</li>
+                <li><strong>OpenCV:</strong> C++ Canny Edge Detection via JNI</li>
+                <li><strong>OpenGL ES:</strong> GPU-accelerated texture rendering</li>
+                <li><strong>Web:</strong> TypeScript + HTML5 Canvas</li>
+                <li><strong>Build:</strong> Gradle + CMake + Node.js</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
