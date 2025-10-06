@@ -10,8 +10,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Log
-import android.view.SurfaceView
-import android.view.SurfaceHolder
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -20,7 +18,7 @@ import androidx.core.content.ContextCompat
 import android.opengl.GLSurfaceView
 import com.opencvtest.gl.EdgeRenderer
 
-class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
+class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MainActivity"
@@ -39,7 +37,7 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
     private lateinit var glSurfaceView: GLSurfaceView
     private lateinit var edgeRenderer: EdgeRenderer
 
-    private var surfaceHolder: SurfaceHolder? = null
+
     private var cameraDevice: CameraDevice? = null
     private var backgroundHandler: Handler? = null
     private var backgroundThread: HandlerThread? = null
@@ -76,27 +74,18 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
 
     override fun onResume() {
         super.onResume()
+        glSurfaceView.onResume()
         startBackgroundThread()
     }
 
     override fun onPause() {
+        glSurfaceView.onPause()
         closeCamera()
         stopBackgroundThread()
         super.onPause()
     }
 
-    override fun surfaceCreated(holder: SurfaceHolder) {
-        Log.d(TAG, "Surface created")
-        openCamera()
-    }
 
-    override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        Log.d(TAG, "Surface changed: ${width}x${height}")
-    }
-
-    override fun surfaceDestroyed(holder: SurfaceHolder) {
-        Log.d(TAG, "Surface destroyed")
-    }
 
     private fun checkCameraPermission(): Boolean {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
@@ -108,8 +97,8 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
 
     private fun initializeCamera() {
         Log.d(TAG, "Camera permission granted")
+        openCamera() // Add this line
     }
-
     private fun startBackgroundThread() {
         backgroundThread = HandlerThread("Camera Background")
         backgroundThread?.start()
@@ -164,7 +153,6 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
 
     private fun createCameraPreview() {
         try {
-            val surface = surfaceHolder?.surface!!
 
             val captureRequestBuilder = cameraDevice!!.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
             captureRequestBuilder.addTarget(imageReader!!.surface) // Only ImageReader for processing
@@ -223,22 +211,13 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback {
                 val bitmap = Bitmap.createBitmap(processedPixels, image.width, image.height, Bitmap.Config.ARGB_8888)
 
                 runOnUiThread {
-                    // Draw on surface with rotation fix
-                    val canvas = surfaceHolder?.lockCanvas()
-                    canvas?.let { c ->
-                        // Rotate canvas 90 degrees clockwise to fix orientation
-                        c.save()
-                        c.rotate(90f, c.width / 2f, c.height / 2f)
-
-                        // Scale and draw bitmap
-                        val srcRect = Rect(0, 0, bitmap.width, bitmap.height)
-                        val dstRect = Rect(0, 0, c.width, c.height)
-                        c.drawBitmap(bitmap, srcRect, dstRect, null)
-
-                        c.restore()
-                        surfaceHolder?.unlockCanvasAndPost(c)
+                    // Queue OpenGL operations on the GL thread
+                    glSurfaceView.queueEvent {
+                        edgeRenderer.updateTexture(bitmap)
                     }
+                    glSurfaceView.requestRender()
                 }
+
 
                 Log.d(TAG, "Frame displayed")
             }

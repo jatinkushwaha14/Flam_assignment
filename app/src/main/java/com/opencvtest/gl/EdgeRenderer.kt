@@ -59,10 +59,10 @@ class EdgeRenderer : Renderer {
 
     // UV coordinates
     private val uvCoords = floatArrayOf(
-        0.0f, 1.0f,  // bottom left
-        1.0f, 1.0f,  // bottom right
-        0.0f, 0.0f,  // top left
-        1.0f, 0.0f   // top right
+        1.0f, 1.0f,
+        1.0f, 0.0f,
+        0.0f, 1.0f,
+        0.0f, 0.0f  
     )
 
     init {
@@ -145,11 +145,14 @@ class EdgeRenderer : Renderer {
     }
 
     fun updateTexture(bitmap: Bitmap) {
+        Log.d(TAG, "updateTexture called with bitmap: ${bitmap.width}x${bitmap.height}")
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId)
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0)
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR)
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR)
+        Log.d(TAG, "Texture updated successfully")
     }
+
 
     private fun loadShader(type: Int, shaderCode: String): Int {
         val shader = GLES20.glCreateShader(type)
