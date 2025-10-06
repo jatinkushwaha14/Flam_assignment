@@ -35,7 +35,7 @@ Real-time edge detection application using Android Camera2 API, OpenCV C++ proce
 
 ### Web Viewer Interface
 ![Web Viewer](screenshots/frame.jpeg)
-*TypeScript web viewer displaying processed frames with statistics*
+*TypeScript web viewer displaying static frame (can be integrated to realtime using websockets)*
 
 
 ## Setup Instructions
